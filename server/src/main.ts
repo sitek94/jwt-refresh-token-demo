@@ -5,12 +5,7 @@ import { AppModule } from './app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
-  app.useGlobalPipes(
-    new ValidationPipe({
-      // Filter out properties that should not be received by the method handler
-      whitelist: true,
-    }),
-  )
+  app.useGlobalPipes(new ValidationPipe())
   await app.listen(3333)
 }
 bootstrap()

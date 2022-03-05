@@ -6,7 +6,7 @@ import * as argon from 'argon2'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto } from './dto'
-import { Tokens } from './types'
+import { JwtPayload, JwtTokens } from './types'
 
 @Injectable()
 export class AuthService {
@@ -16,7 +16,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signup(dto: AuthDto): Promise<Tokens> {
+  async signup(dto: AuthDto): Promise<JwtTokens> {
     // Generate password hash
     const hash = await argon.hash(dto.password)
 
@@ -45,7 +45,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto): Promise<Tokens> {
+  async signin(dto: AuthDto): Promise<JwtTokens> {
     // Find the user by email
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -72,34 +72,72 @@ export class AuthService {
     return tokens
   }
 
+  async logout(userId: string) {
+    // We're using `updateMany` so that we can make sure that the refresh token
+    // is actually not null. It should prevent spamming the logout endpoint, and
+    // setting the refresh token to null even if it's already null.
+    // More info: https://www.youtube.com/watch?v=uAKzFhE3rxU&t=4742s
+    await this.prismaService.user.updateMany({
+      where: {
+        id: userId,
+        refreshTokenHash: {
+          not: null,
+        },
+      },
+      data: {
+        refreshTokenHash: null,
+      },
+    })
+    return true
+  }
+
+  async refreshTokens(userId: string, refreshToken: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+    if (!user) {
+      throw new ForbiddenException('User not found')
+    }
+
+    if (!user.refreshTokenHash) {
+      throw new ForbiddenException('Access Denied')
+    }
+
+    const valid = await argon.verify(user.refreshTokenHash, refreshToken)
+    if (!valid) {
+      throw new ForbiddenException('Invalid refresh token')
+    }
+
+    const tokens = await this.getTokens({
+      userId: user.id,
+      email: user.email,
+    })
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+    return tokens
+  }
+
   async getTokens({
     userId,
     email,
   }: {
     userId: string
     email: string
-  }): Promise<Tokens> {
+  }): Promise<JwtTokens> {
+    const jwtPayload: JwtPayload = {
+      sub: userId,
+      email,
+    }
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          userId,
-          email,
-        },
-        {
-          expiresIn: '15min',
-          secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-        },
-      ),
-      this.jwtService.signAsync(
-        {
-          userId,
-          email,
-        },
-        {
-          expiresIn: '7d',
-          secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-        },
-      ),
+      this.jwtService.signAsync(jwtPayload, {
+        expiresIn: '15min',
+        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+      }),
+      this.jwtService.signAsync(jwtPayload, {
+        expiresIn: '7d',
+        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+      }),
     ])
 
     return {
