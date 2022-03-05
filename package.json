@@ -8,7 +8,6 @@
   },
   "author": "Maciek Sitkowski <msitkowski94@gmail.com> (https://github.com/sitek94)",
   "devDependencies": {
-    "concurrently": "^7.0.0",
     "prettier": "^2.5.1"
   }
 }
