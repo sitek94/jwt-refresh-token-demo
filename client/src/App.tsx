@@ -1,7 +1,12 @@
 import * as React from 'react'
 
 function App() {
-  const login = (email: string, password: string) => {}
+  const login = (email: string, password: string) => {
+    console.log({
+      email,
+      password,
+    })
+  }
   return (
     <div>
       <hgroup>
