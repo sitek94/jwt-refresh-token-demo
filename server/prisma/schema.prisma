@@ -11,11 +11,13 @@ datasource db {
 }
 
 model User {
-  id          String @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  email       String  @unique
-  hash        String
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  email             String  @unique
+  hash              String
+  refreshTokenHash  String?
 
   firstName   String?
   lastName    String?

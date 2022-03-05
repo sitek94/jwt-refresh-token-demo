@@ -2,8 +2,8 @@
   "name": "jwt-refresh-token-demo",
   "scripts": {
     "init": "cd client && npm i && cd ../server && npm i",
-    "client:start": "cd client && npm run start",
-    "server:start": "cd server && npm run start",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
     "format": "prettier --write \"client/**/*.{ts,tsx}\" \"server/**/*.ts\""
   },
   "author": "Maciek Sitkowski <msitkowski94@gmail.com> (https://github.com/sitek94)",

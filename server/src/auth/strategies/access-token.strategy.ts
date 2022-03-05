@@ -6,15 +6,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
 import { PrismaService } from '../../prisma/prisma.service'
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     configService: ConfigService,
     private prismaService: PrismaService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get('ACCESS_TOKEN_SECRET'),
     })
   }
 

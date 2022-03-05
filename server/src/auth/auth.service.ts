@@ -6,6 +6,7 @@ import * as argon from 'argon2'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto } from './dto'
+import { Tokens } from './types'
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signup(dto: AuthDto) {
+  async signup(dto: AuthDto): Promise<Tokens> {
     // Generate password hash
     const hash = await argon.hash(dto.password)
 
@@ -28,7 +29,12 @@ export class AuthService {
         },
       })
 
-      return this.signToken({ userId: user.id, email: user.email })
+      const tokens = await this.getTokens({
+        userId: user.id,
+        email: user.email,
+      })
+      await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+      return tokens
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -39,7 +45,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto) {
+  async signin(dto: AuthDto): Promise<Tokens> {
     // Find the user by email
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -58,21 +64,63 @@ export class AuthService {
       throw new ForbiddenException('Invalid password')
     }
 
-    return this.signToken({ userId: user.id, email: user.email })
+    const tokens = await this.getTokens({
+      userId: user.id,
+      email: user.email,
+    })
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+    return tokens
   }
 
-  async signToken(user: {
+  async getTokens({
+    userId,
+    email,
+  }: {
     userId: string
     email: string
-  }): Promise<{ access_token: string }> {
-    const payload = { sub: user.userId, email: user.email }
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '15min',
-      secret: this.configService.get('JWT_SECRET'),
-    })
+  }): Promise<Tokens> {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          userId,
+          email,
+        },
+        {
+          expiresIn: '15min',
+          secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          userId,
+          email,
+        },
+        {
+          expiresIn: '7d',
+          secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+        },
+      ),
+    ])
 
     return {
-      access_token: token,
+      access_token: accessToken,
+      refresh_token: refreshToken,
     }
+  }
+
+  async updateRefreshTokenHash(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
+    const hash = await argon.hash(refreshToken)
+
+    await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        refreshTokenHash: hash,
+      },
+    })
   }
 }
