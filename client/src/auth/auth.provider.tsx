@@ -29,6 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await authClient.get('/check', {
           signal: controller.signal,
         })
+        if (response.status === 403) {
+          console.log(response)
+        }
         const { access_token } = response.data
         setAccessToken(access_token)
       } catch (error) {
@@ -64,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // If we received an access token, we're authenticated 🥳
-  const isAuthenticated = accessToken !== null
+  const isAuthenticated = !!accessToken
 
   // There is no need to optimize this `value` with React.useMemo here, since it
   // is the top-most component in the app, so it will very rarely re-render, so

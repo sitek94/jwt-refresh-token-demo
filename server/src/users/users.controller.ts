@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common'
-import { User } from '@prisma/client'
 
-import { CurrentUser, CurrentUserId } from '../common/decorators'
+import { CurrentUserId } from '../common/decorators'
 import { AccessTokenGuard } from '../common/guards'
 import { EditUserDto } from './dto'
 import { UsersService } from './users.service'
@@ -12,8 +11,8 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get('me')
-  getMe(@CurrentUser() user: User) {
-    return user
+  getMe(@CurrentUserId() userId: string) {
+    return this.userService.getMe(userId)
   }
 
   @Patch()
