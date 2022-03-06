@@ -4,12 +4,12 @@ import { User } from '@prisma/client'
 import { CurrentUser, CurrentUserId } from '../common/decorators'
 import { AccessTokenGuard } from '../common/guards'
 import { EditUserDto } from './dto'
-import { UserService } from './user.service'
+import { UsersService } from './users.service'
 
 @UseGuards(AccessTokenGuard)
 @Controller('users')
-export class UserController {
-  constructor(private userService: UserService) {}
+export class UsersController {
+  constructor(private userService: UsersService) {}
 
   @Get('me')
   getMe(@CurrentUser() user: User) {

@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { EditUserDto } from './dto'
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async editUser(userId: string, dto: EditUserDto) {

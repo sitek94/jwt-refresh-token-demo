@@ -5,7 +5,7 @@ import * as pactum from 'pactum'
 import { AppModule } from '../src/app.module'
 import { AuthDto } from '../src/auth/dto'
 import { PrismaService } from '../src/prisma/prisma.service'
-import { EditUserDto } from '../src/user/dto'
+import { EditUserDto } from '../src/users/dto'
 /**
  * NestJS: Testing Utilities
  * https://docs.nestjs.com/fundamentals/testing#testing-utilities
