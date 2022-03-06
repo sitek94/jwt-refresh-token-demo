@@ -7,6 +7,7 @@ import * as argon from 'argon2'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto } from './dto'
 import { JwtPayload, JwtTokens } from './types'
+import { Request, Response } from 'express'
 
 @Injectable()
 export class AuthService {
@@ -45,7 +46,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto): Promise<JwtTokens> {
+  async signin(dto: AuthDto, res: Response): Promise<JwtTokens> {
     // Find the user by email
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -69,6 +70,14 @@ export class AuthService {
       email: user.email,
     })
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+
+    res.cookie('refresh_token', tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
+      path: '/',
+    })
+
     return tokens
   }
 
@@ -91,7 +100,7 @@ export class AuthService {
     return true
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
+  async refreshTokens(userId: string, refreshToken: string, res: Response) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -115,7 +124,51 @@ export class AuthService {
       email: user.email,
     })
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+
+    res.cookie('refresh_token', tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
+      path: '/',
+    })
+
     return tokens
+  }
+
+  async check(req: Request, res: Response) {
+    const refreshToken = req.cookies['refresh_token']
+    if (!refreshToken) {
+      throw new ForbiddenException('Access Denied')
+    }
+
+    const { sub: userId } = await this.jwtService.decode(refreshToken)
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+
+    const valid = await argon.verify(user.refreshTokenHash, refreshToken)
+    if (!valid) {
+      throw new ForbiddenException('Invalid refresh token')
+    }
+
+    const tokens = await this.getTokens({
+      userId: user.id,
+      email: user.email,
+    })
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+
+    res.cookie('refresh_token', tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
+      path: '/',
+    })
+
+    return {
+      access_token: tokens.access_token,
+    }
   }
 
   async getTokens({

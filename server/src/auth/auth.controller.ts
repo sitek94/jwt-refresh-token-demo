@@ -1,11 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common'
+import { Request, Response } from 'express'
 
 import { CurrentUser, CurrentUserId, Public } from '../common/decorators'
 import { RefreshTokenGuard } from '../common/guards'
@@ -21,21 +25,23 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: AuthDto): Promise<JwtTokens> {
-    console.log(dto)
     return this.authService.signup(dto)
   }
 
   @Public()
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  signin(@Body() dto: AuthDto): Promise<JwtTokens> {
-    return this.authService.signin(dto)
+  signin(
+    @Body() dto: AuthDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<JwtTokens> {
+    return this.authService.signin(dto, res)
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@CurrentUserId() userId: string): Promise<boolean> {
-    console.log(userId)
     return this.authService.logout(userId)
   }
 
@@ -46,7 +52,15 @@ export class AuthController {
   refreshTokens(
     @CurrentUserId() userId: string,
     @CurrentUser('refreshToken') refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<JwtTokens> {
-    return this.authService.refreshTokens(userId, refreshToken)
+    return this.authService.refreshTokens(userId, refreshToken, res)
+  }
+
+  @Public()
+  @Get('check')
+  @HttpCode(HttpStatus.OK)
+  check(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return this.authService.check(req, res)
   }
 }

@@ -1,12 +1,9 @@
 import * as React from 'react'
+import { useAuth } from '../auth/auth.provider'
 
-function App() {
-  const login = (email: string, password: string) => {
-    console.log({
-      email,
-      password,
-    })
-  }
+export function UnauthenticatedApp() {
+  const { login } = useAuth()
+
   return (
     <div>
       <hgroup>
@@ -47,5 +44,3 @@ function FormLogin({
     </form>
   )
 }
-
-export default App

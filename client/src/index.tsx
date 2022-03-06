@@ -1,11 +1,12 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import './index.css'
-import App from './App'
+import { App } from './app/app'
+import { AppProviders } from './app/app-providers'
 
 ReactDOM.render(
-  <React.StrictMode>
+  <AppProviders>
     <App />
-  </React.StrictMode>,
+  </AppProviders>,
   document.getElementById('root'),
 )
