@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as argon from 'argon2'
+import { Request, Response } from 'express'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto } from './dto'
 import { JwtPayload, JwtTokens } from './types'
-import { Request, Response } from 'express'
 
 @Injectable()
 export class AuthService {
@@ -34,7 +34,7 @@ export class AuthService {
         userId: user.id,
         email: user.email,
       })
-      await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+      await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
       return tokens
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -69,9 +69,9 @@ export class AuthService {
       userId: user.id,
       email: user.email,
     })
-    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
       expires: new Date(new Date().getTime() + 24 * 60 * 1000),
@@ -81,11 +81,12 @@ export class AuthService {
     return tokens
   }
 
-  async logout(userId: string) {
+  async logout(userId: string, response: Response) {
     // We're using `updateMany` so that we can make sure that the refresh token
     // is actually not null. It should prevent spamming the logout endpoint, and
     // setting the refresh token to null even if it's already null.
     // More info: https://www.youtube.com/watch?v=uAKzFhE3rxU&t=4742s
+
     await this.prismaService.user.updateMany({
       where: {
         id: userId,
@@ -97,10 +98,17 @@ export class AuthService {
         refreshTokenHash: null,
       },
     })
+
+    response.clearCookie('refreshToken')
+
     return true
   }
 
-  async refreshTokens(userId: string, refreshToken: string, res: Response) {
+  async refreshTokens(
+    userId: string,
+    refreshToken: string,
+    response: Response,
+  ) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -123,9 +131,9 @@ export class AuthService {
       userId: user.id,
       email: user.email,
     })
-    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    res.cookie('refresh_token', tokens.refresh_token, {
+    response.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
       expires: new Date(new Date().getTime() + 24 * 60 * 1000),
@@ -136,9 +144,9 @@ export class AuthService {
   }
 
   async check(req: Request, res: Response) {
-    const refreshToken = req.cookies['refresh_token']
+    const refreshToken = req.cookies['refreshToken']
     if (!refreshToken) {
-      throw new ForbiddenException('Access Denied')
+      return false
     }
 
     const { sub: userId } = await this.jwtService.decode(refreshToken)
@@ -150,16 +158,16 @@ export class AuthService {
 
     const valid = await argon.verify(user.refreshTokenHash, refreshToken)
     if (!valid) {
-      throw new ForbiddenException('Invalid refresh token')
+      return false
     }
 
     const tokens = await this.getTokens({
       userId: user.id,
       email: user.email,
     })
-    await this.updateRefreshTokenHash(user.id, tokens.refresh_token)
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
       expires: new Date(new Date().getTime() + 24 * 60 * 1000),
@@ -167,7 +175,7 @@ export class AuthService {
     })
 
     return {
-      access_token: tokens.access_token,
+      accessToken: tokens.accessToken,
     }
   }
 
@@ -194,8 +202,8 @@ export class AuthService {
     ])
 
     return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     }
   }
 

@@ -8,9 +8,11 @@ const authClient = axios.create({
 })
 
 type AuthContextValue = {
-  accessToken?: string | null
+  accessToken: string | null
   isAuthenticated: boolean
   login(email: string, password: string): Promise<void>
+  logout(): void
+  setAccessToken(accessToken: string): void
 }
 
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
@@ -26,16 +28,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function checkAuthStatus() {
       try {
-        const response = await authClient.get('/check', {
-          signal: controller.signal,
-        })
-        if (response.status === 403) {
-          console.log(response)
+        const { data } = await authClient.get<{ accessToken: string } | false>(
+          '/check',
+          {
+            signal: controller.signal,
+          },
+        )
+        if (!data) {
+          isMounted && setAccessToken(null)
+        } else {
+          isMounted && setAccessToken(data.accessToken)
         }
-        const { access_token } = response.data
-        setAccessToken(access_token)
       } catch (error) {
-        setAccessToken(null)
+        isMounted && setAccessToken(null)
       }
     }
 
@@ -48,8 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 🚨 It's `undefined` initially, because we don't know if the user is
   // authenticated or not. While we're waiting for the API to respond, we show
   // a loading indicator.
-  const isCheckingAuthStatus = accessToken === undefined
-  if (isCheckingAuthStatus === undefined) {
+
+  // Interesting, when I assign it to a variable, there is a flash of Unauthenticated
+  // App 🤔
+  if (accessToken === undefined) {
     return <FullPageSpinner />
   }
 
@@ -59,24 +66,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       })
-      const { access_token } = response.data
-      setAccessToken(access_token)
+      const { accessToken } = response.data
+      setAccessToken(accessToken)
     } catch (error) {
       setAccessToken(null)
     }
   }
 
-  // If we received an access token, we're authenticated 🥳
-  const isAuthenticated = !!accessToken
+  async function logout() {
+    try {
+      await authClient.post('/logout', null, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      setAccessToken(null)
+    } catch (error) {
+      console.error(error)
+      setAccessToken(null)
+    }
+  }
 
   // There is no need to optimize this `value` with React.useMemo here, since it
   // is the top-most component in the app, so it will very rarely re-render, so
   // it's not going to cause a performance problem.
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, login, accessToken }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  const context = {
+    isAuthenticated: !!accessToken,
+    accessToken,
+    login,
+    logout,
+    setAccessToken,
+  }
+  return <AuthContext.Provider value={context} children={children} />
 }
 
 export function useAuth() {

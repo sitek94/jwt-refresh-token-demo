@@ -33,16 +33,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   signin(
     @Body() dto: AuthDto,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<JwtTokens> {
-    return this.authService.signin(dto, res)
+    return this.authService.signin(dto, response)
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@CurrentUserId() userId: string): Promise<boolean> {
-    return this.authService.logout(userId)
+  logout(
+    @CurrentUserId() userId: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<boolean> {
+    return this.authService.logout(userId, response)
   }
 
   @Public()
@@ -52,15 +55,18 @@ export class AuthController {
   refreshTokens(
     @CurrentUserId() userId: string,
     @CurrentUser('refreshToken') refreshToken: string,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<JwtTokens> {
-    return this.authService.refreshTokens(userId, refreshToken, res)
+    return this.authService.refreshTokens(userId, refreshToken, response)
   }
 
   @Public()
   @Get('check')
   @HttpCode(HttpStatus.OK)
-  check(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    return this.authService.check(req, res)
+  check(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.check(request, response)
   }
 }

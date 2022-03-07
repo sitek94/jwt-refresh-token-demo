@@ -5,7 +5,7 @@ import { AuthenticatedAppProviders } from './authenticated-app-providers'
 
 export function App() {
   const { isAuthenticated } = useAuth()
-
+  // console.log(isAuthenticated)
   return isAuthenticated ? (
     <AuthenticatedAppProviders>
       <AuthenticatedApp />

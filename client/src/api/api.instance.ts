@@ -2,6 +2,7 @@ import * as React from 'react'
 import axios from 'axios'
 import { env } from 'config/env'
 import { useAuth } from 'auth/auth.provider'
+import { useRefreshAccessToken } from '../auth/use-refresh-token'
 
 export const apiAxios = axios.create({
   baseURL: env.apiUrl,
@@ -12,6 +13,7 @@ export const apiAxios = axios.create({
 })
 
 export function useApiAxios() {
+  const refreshAccessToken = useRefreshAccessToken()
   const { accessToken } = useAuth()
 
   React.useEffect(() => {
@@ -28,9 +30,23 @@ export function useApiAxios() {
 
     const responseInterceptor = apiAxios.interceptors.response.use(
       response => response,
-      error => Promise.reject(error),
+      async error => {
+        const previousRequest = error?.config
+        if (error?.response?.status === 403 && !previousRequest?.sent) {
+          previousRequest.sent = true
+          const newAccessToken = await refreshAccessToken()
+          previousRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
+          return apiAxios(previousRequest)
+        }
+        return Promise.reject(error)
+      },
     )
-  }, [])
+
+    return () => {
+      apiAxios.interceptors.request.eject(requestInterceptor)
+      apiAxios.interceptors.response.eject(responseInterceptor)
+    }
+  }, [accessToken, refreshAccessToken])
 
   return apiAxios
 }

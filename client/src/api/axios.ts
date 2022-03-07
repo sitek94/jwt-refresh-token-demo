@@ -28,7 +28,7 @@ export {}
 //     //   console.log(response.data.accessToken)
 //     //   return { ...prev, accessToken: response.data.accessToken }
 //     // })
-//     setAccessToken(response.data.access_token)
+//     setAccessToken(response.data.accessToken)
 //
 //     return response.data.accessToken
 //   }
