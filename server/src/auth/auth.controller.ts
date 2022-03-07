@@ -15,7 +15,6 @@ import { CurrentUser, CurrentUserId, Public } from '../common/decorators'
 import { RefreshTokenGuard } from '../common/guards'
 import { AuthService } from './auth.service'
 import { AuthDto } from './dto'
-import { JwtTokens } from './types'
 
 @Controller('auth')
 export class AuthController {
@@ -24,8 +23,8 @@ export class AuthController {
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() dto: AuthDto): Promise<JwtTokens> {
-    return this.authService.signup(dto)
+  signup(@Body() dto: AuthDto, @Res({ passthrough: true }) response: Response) {
+    return this.authService.signup(dto, response)
   }
 
   @Public()
@@ -35,7 +34,7 @@ export class AuthController {
     @Body() dto: AuthDto,
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<JwtTokens> {
+  ) {
     return this.authService.signin(dto, response)
   }
 
@@ -56,7 +55,7 @@ export class AuthController {
     @CurrentUserId() userId: string,
     @CurrentUser('refreshToken') refreshToken: string,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<JwtTokens> {
+  ) {
     return this.authService.refreshTokens(userId, refreshToken, response)
   }
 

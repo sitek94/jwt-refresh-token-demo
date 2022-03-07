@@ -17,7 +17,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signup(dto: AuthDto): Promise<JwtTokens> {
+  async signup(dto: AuthDto, response: Response) {
     // Generate password hash
     const hash = await argon.hash(dto.password)
 
@@ -35,7 +35,10 @@ export class AuthService {
         email: user.email,
       })
       await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
-      return tokens
+      this.appendRefreshTokenCookie(tokens.refreshToken, response)
+      return {
+        accessToken: tokens.accessToken,
+      }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -46,7 +49,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto, res: Response): Promise<JwtTokens> {
+  async signin(dto: AuthDto, response: Response) {
     // Find the user by email
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -71,14 +74,11 @@ export class AuthService {
     })
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
-      path: '/',
-    })
+    this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
-    return tokens
+    return {
+      accessToken: tokens.accessToken,
+    }
   }
 
   async logout(userId: string, response: Response) {
@@ -133,17 +133,14 @@ export class AuthService {
     })
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    response.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
-      path: '/',
-    })
+    this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
-    return tokens
+    return {
+      accessToken: tokens.accessToken,
+    }
   }
 
-  async check(req: Request, res: Response) {
+  async check(req: Request, response: Response) {
     const refreshToken = req.cookies['refreshToken']
     if (!refreshToken) {
       return false
@@ -167,12 +164,7 @@ export class AuthService {
     })
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
 
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
-      path: '/',
-    })
+    this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
     return {
       accessToken: tokens.accessToken,
@@ -220,6 +212,15 @@ export class AuthService {
       data: {
         refreshTokenHash: hash,
       },
+    })
+  }
+
+  appendRefreshTokenCookie(refreshToken: string, response: Response) {
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(new Date().getTime() + 24 * 60 * 1000),
+      path: '/',
     })
   }
 }
