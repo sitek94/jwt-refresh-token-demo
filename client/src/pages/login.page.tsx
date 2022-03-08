@@ -7,10 +7,6 @@ export function LoginPage() {
 
   return (
     <div>
-      <hgroup>
-        <h1>Sign in</h1>
-        <h2>And watch the magic happen</h2>
-      </hgroup>
       <FormLogin onSubmit={login} />
     </div>
   )
