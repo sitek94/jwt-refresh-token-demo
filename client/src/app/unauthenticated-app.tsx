@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { LoginPage } from 'pages/login.page'
-import { HomePage } from 'pages/home.page'
-import { Navbar } from 'components/navbar'
 import { Button, Container } from '@mui/material'
+
+import { Navbar } from 'components/navbar'
+import { HomePage } from 'pages/home.page'
+import { LoginPage } from 'pages/login.page'
 import { RegisterPage } from 'pages/register.page'
 
 export function UnauthenticatedApp() {

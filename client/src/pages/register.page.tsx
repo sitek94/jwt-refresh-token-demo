@@ -1,10 +1,11 @@
 import * as React from 'react'
-import Avatar from '@mui/material/Avatar'
-import Link from '@mui/material/Link'
-import Grid from '@mui/material/Grid'
-import Box from '@mui/material/Box'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
+
 import { RegisterForm } from 'forms/register.form'
 
 export function RegisterPage() {

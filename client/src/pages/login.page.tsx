@@ -1,12 +1,13 @@
-import { useAuth } from 'auth/auth.provider'
 import * as React from 'react'
-import Box from '@mui/material/Box'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
 import Avatar from '@mui/material/Avatar'
-import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
+
+import { useAuth } from 'auth/auth.provider'
 import { LoginForm } from 'forms/login.form'
-import LockOpenIcon from '@mui/icons-material/LockOpen'
 
 export function LoginPage() {
   const { login } = useAuth()

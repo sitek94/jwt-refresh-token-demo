@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { FullPageSpinner } from '../components'
-import { useApiAxios } from '../api/api.instance'
+
+import { useApiAxios } from 'api/api.instance'
+import { FullPageSpinner } from 'components'
 
 interface User {
   id: string
@@ -28,7 +29,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.log(error)
       }
     }
-  }, [])
+  }, [axios])
 
   if (!user) {
     return <FullPageSpinner />

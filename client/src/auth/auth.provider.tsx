@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { FullPageSpinner } from '../components'
 import axios from 'axios'
+
+import { FullPageSpinner } from 'components'
 
 const authClient = axios.create({
   baseURL: 'http://localhost:3333/auth',

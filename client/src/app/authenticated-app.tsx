@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { useUser } from '../providers/user.provider'
-import { NavAuthenticated } from '../components'
+
+import { NavAuthenticated } from 'components'
+import { useUser } from 'providers/user.provider'
 
 export function AuthenticatedApp() {
   const user = useUser()

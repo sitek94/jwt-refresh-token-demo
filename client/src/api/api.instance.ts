@@ -1,8 +1,9 @@
 import * as React from 'react'
 import axios from 'axios'
-import { env } from 'config/env'
+
 import { useAuth } from 'auth/auth.provider'
-import { useRefreshAccessToken } from '../auth/use-refresh-token'
+import { useRefreshAccessToken } from 'auth/use-refresh-token'
+import { env } from 'config/env'
 
 export const apiAxios = axios.create({
   baseURL: env.apiUrl,

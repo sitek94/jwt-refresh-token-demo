@@ -1,5 +1,5 @@
-import { useAuth } from './auth.provider'
-import { apiAxios } from '../api/api.instance'
+import { apiAxios } from 'api/api.instance'
+import { useAuth } from 'auth/auth.provider'
 
 export function useRefreshAccessToken() {
   const { setAccessToken } = useAuth()
