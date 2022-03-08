@@ -5,11 +5,10 @@ export function HomePage() {
   return (
     <Box
       sx={{
-        py: 4,
+        marginTop: 8,
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        alignItems: 'start',
       }}
     >
       <Typography variant="h2" component="h1">

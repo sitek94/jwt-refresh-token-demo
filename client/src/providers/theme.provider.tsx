@@ -26,7 +26,7 @@ const theme = createTheme({
       main: '#3399FF', // It's this beautiful MaterialUI blue
     },
     secondary: {
-      main: '#ce93d8',
+      main: '#e91e63',
     },
   },
   components: {
