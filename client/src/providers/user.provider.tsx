@@ -11,10 +11,6 @@ interface User {
   lastName: string
 }
 
-interface UserContextValue {
-  user: User
-}
-
 const UserContext = React.createContext<User | undefined>(undefined)
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
