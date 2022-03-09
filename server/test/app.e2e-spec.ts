@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing'
 import * as pactum from 'pactum'
 
 import { AppModule } from '../src/app.module'
-import { AuthDto } from '../src/auth/dto'
+import { RegisterDto } from '../src/auth/dto'
 import { PrismaService } from '../src/prisma/prisma.service'
 import { EditUserDto } from '../src/users/dto'
 
@@ -29,14 +29,14 @@ describe('App E2E', () => {
     )
 
     await app.init()
-    await app.listen(3333)
+    await app.listen(9999)
 
     // Prisma
     prismaService = app.get(PrismaService)
     await prismaService.cleanDb()
 
     // Pactum
-    pactum.request.setBaseUrl('http://localhost:3333')
+    pactum.request.setBaseUrl('http://localhost:9999')
   })
 
   afterAll(() => {
@@ -44,12 +44,15 @@ describe('App E2E', () => {
   })
 
   describe('Auth', () => {
-    const dto: AuthDto = {
+    const dto: RegisterDto = {
       email: 'aragorn@strider.com',
       password: 'arwen', // Omg so cute
+      passwordConfirm: 'arwen',
+      firstName: 'Aragorn',
+      lastName: 'Elessar',
     }
 
-    describe('Sign up', () => {
+    describe('Register', () => {
       it('should throw if email is empty', () => {
         return pactum
           .spec()
@@ -66,6 +69,20 @@ describe('App E2E', () => {
           .post('/auth/register')
           .withBody({
             email: dto.email,
+          })
+          .expectStatus(400)
+      })
+
+      it(`should throw if passwords don't match`, () => {
+        return pactum
+          .spec()
+          .post('/auth/register')
+          .withBody({
+            email: dto.email,
+            password: dto.password,
+            passwordConfirm: 'definitely wrong password',
+            firstName: dto.firstName,
+            lastName: dto.lastName,
           })
           .expectStatus(400)
       })
@@ -136,9 +153,9 @@ describe('App E2E', () => {
     describe('Edit user', () => {
       it('should edit current user', () => {
         const dto: EditUserDto = {
-          email: 'aragorn@gondor.org',
-          firstName: 'Aragorn',
-          lastName: 'Elessar',
+          email: 'definitely@different.email',
+          firstName: 'New First Name',
+          lastName: 'New Last Name',
         }
         return pactum
           .spec()
