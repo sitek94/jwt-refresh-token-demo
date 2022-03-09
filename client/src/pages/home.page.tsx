@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material'
+import { Box, Button, Stack } from '@mui/material'
 import Typography from '@mui/material/Typography'
 
 export function HomePage() {
@@ -20,14 +20,14 @@ export function HomePage() {
         consectetur, neque doloribus, cupiditate numquam dignissimos laborum
         fugiat deleniti? Eum quasi quidem quibusdam.
       </Typography>
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      <Stack spacing={2} direction="row">
         <Button variant="contained" size="large" href="/register">
-          register
+          Register
         </Button>
         <Button variant="outlined" size="large" href="/login">
           Login
         </Button>
-      </Box>
+      </Stack>
     </Box>
   )
 }
