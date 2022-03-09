@@ -2,19 +2,29 @@ import * as React from 'react'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 
+// TODO: Clear initial state, it's here only for development purposes, so
+//   that I don't have to type this all the time.
+const initialState = {
+  email: 'maciek@maciek.com',
+  password: 'maciek',
+}
+
 export function LoginForm({
   onSubmit,
 }: {
-  onSubmit(email: string, password: string): void
+  onSubmit(data: typeof initialState): void
 }) {
-  // TODO: Remove initial states, it's here only for development purposes, so
-  //   that I don't have to type this all the time.
-  const [email, setEmail] = React.useState('maciek@maciek.com')
-  const [password, setPassword] = React.useState('maciek')
+  const [values, setValues] = React.useState(initialState)
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setValues(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    onSubmit(email, password)
+    onSubmit(values)
   }
 
   return (
@@ -24,8 +34,8 @@ export function LoginForm({
         name="email"
         label="Email Address"
         autoComplete="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
+        value={values.email}
+        onChange={handleChange}
         margin="normal"
         fullWidth
         required
@@ -37,8 +47,8 @@ export function LoginForm({
         name="password"
         label="Password"
         autoComplete="current-password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
+        value={values.password}
+        onChange={handleChange}
         margin="normal"
         fullWidth
         required

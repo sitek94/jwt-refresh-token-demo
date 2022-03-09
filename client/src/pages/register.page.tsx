@@ -6,10 +6,11 @@ import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
+import { useAuth } from 'auth/auth.provider'
 import { RegisterForm } from 'forms/register.form'
 
 export function RegisterPage() {
-  const register = () => {}
+  const { register } = useAuth()
   return (
     <Box
       sx={{

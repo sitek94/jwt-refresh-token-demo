@@ -3,6 +3,8 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 
+// TODO: Clear initial state, it's here only for development purposes, so
+//   that I don't have to type this all the time.
 const initialState = {
   email: 'nikola@tesla.com',
   password: 'future',
@@ -16,8 +18,6 @@ export function RegisterForm({
 }: {
   onSubmit(data: typeof initialState): void
 }) {
-  // TODO: Remove initial states, it's here only for development purposes, so
-  //   that I don't have to type this all the time.
   const [values, setValues] = React.useState(initialState)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -93,7 +93,7 @@ export function RegisterForm({
             name="passwordConfirm"
             label="Password Confirmation"
             autoComplete="new-password"
-            value={values.password}
+            value={values.passwordConfirm}
             onChange={handleChange}
             fullWidth
             required

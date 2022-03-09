@@ -1,6 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 
+import { LoginDto, RegisterDto } from 'auth/auth.types'
 import { SpinnerFullPage } from 'components/spinner'
 
 const authClient = axios.create({
@@ -11,7 +12,8 @@ const authClient = axios.create({
 type AuthContextValue = {
   accessToken: string | null
   isAuthenticated: boolean
-  login(email: string, password: string): Promise<void>
+  register(dto: RegisterDto): Promise<void>
+  login(dto: LoginDto): Promise<void>
   logout(): void
   setAccessToken(accessToken: string): void
 }
@@ -61,15 +63,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <SpinnerFullPage />
   }
 
-  async function login(email: string, password: string) {
+  async function register(dto: RegisterDto) {
     try {
-      const response = await authClient.post('/login', {
-        email,
-        password,
-      })
-      const { accessToken } = response.data
-      setAccessToken(accessToken)
+      const { data } = await authClient.post('/register', dto)
+      setAccessToken(data.accessToken)
     } catch (error) {
+      console.error(error)
+      setAccessToken(null)
+    }
+  }
+
+  async function login(dto: LoginDto) {
+    try {
+      const { data } = await authClient.post('/login', dto)
+      setAccessToken(data.accessToken)
+    } catch (error) {
+      console.error(error)
       setAccessToken(null)
     }
   }
@@ -94,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const context = {
     isAuthenticated: !!accessToken,
     accessToken,
+    register,
     login,
     logout,
     setAccessToken,
