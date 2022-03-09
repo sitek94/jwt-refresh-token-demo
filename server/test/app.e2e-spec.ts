@@ -6,6 +6,7 @@ import { AppModule } from '../src/app.module'
 import { AuthDto } from '../src/auth/dto'
 import { PrismaService } from '../src/prisma/prisma.service'
 import { EditUserDto } from '../src/users/dto'
+
 /**
  * NestJS: Testing Utilities
  * https://docs.nestjs.com/fundamentals/testing#testing-utilities
@@ -52,7 +53,7 @@ describe('App E2E', () => {
       it('should throw if email is empty', () => {
         return pactum
           .spec()
-          .post('/auth/signup')
+          .post('/auth/register')
           .withBody({
             password: dto.password,
           })
@@ -62,7 +63,7 @@ describe('App E2E', () => {
       it('should throw if password is empty', () => {
         return pactum
           .spec()
-          .post('/auth/signup')
+          .post('/auth/register')
           .withBody({
             email: dto.email,
           })
@@ -70,13 +71,13 @@ describe('App E2E', () => {
       })
 
       it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signup').expectStatus(400)
+        return pactum.spec().post('/auth/register').expectStatus(400)
       })
 
       it('should sign up', () => {
         return pactum
           .spec()
-          .post('/auth/signup')
+          .post('/auth/register')
           .withBody(dto)
           .expectStatus(201)
         // .inspect()
@@ -88,7 +89,7 @@ describe('App E2E', () => {
       it('should throw if email is empty', () => {
         return pactum
           .spec()
-          .post('/auth/signin')
+          .post('/auth/login')
           .withBody({
             password: dto.password,
           })
@@ -98,7 +99,7 @@ describe('App E2E', () => {
       it('should throw if password is empty', () => {
         return pactum
           .spec()
-          .post('/auth/signin')
+          .post('/auth/login')
           .withBody({
             email: dto.email,
           })
@@ -106,13 +107,13 @@ describe('App E2E', () => {
       })
 
       it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signin').expectStatus(400)
+        return pactum.spec().post('/auth/login').expectStatus(400)
       })
 
       it('should sign in', () => {
         return pactum
           .spec()
-          .post('/auth/signin')
+          .post('/auth/login')
           .withBody(dto)
           .expectStatus(200)
           .stores('userAccessToken', 'accessToken')

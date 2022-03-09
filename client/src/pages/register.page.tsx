@@ -9,7 +9,6 @@ import Typography from '@mui/material/Typography'
 import { RegisterForm } from 'forms/register.form'
 
 export function RegisterPage() {
-  // const { login } = useAuth()
   const register = () => {}
   return (
     <Box

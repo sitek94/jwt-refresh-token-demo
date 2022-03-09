@@ -21,21 +21,24 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('signup')
+  @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() dto: AuthDto, @Res({ passthrough: true }) response: Response) {
-    return this.authService.signup(dto, response)
+  register(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(dto, response)
   }
 
   @Public()
-  @Post('signin')
+  @Post('login')
   @HttpCode(HttpStatus.OK)
-  signin(
+  login(
     @Body() dto: AuthDto,
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.signin(dto, response)
+    return this.authService.register(dto, response)
   }
 
   @Post('logout')
