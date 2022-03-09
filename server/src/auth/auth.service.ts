@@ -6,7 +6,7 @@ import * as argon from 'argon2'
 import { Request, Response } from 'express'
 
 import { PrismaService } from '../prisma/prisma.service'
-import { AuthDto } from './dto'
+import { AuthDto, RegisterDto } from './dto'
 import { JwtPayload, JwtTokens } from './types'
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(dto: AuthDto, response: Response) {
+  async register(dto: RegisterDto, response: Response) {
     // Generate password hash
     const hash = await argon.hash(dto.password)
 
@@ -26,6 +26,8 @@ export class AuthService {
       const user = await this.prismaService.user.create({
         data: {
           email: dto.email,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
           hash,
         },
       })
@@ -49,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async register(dto: AuthDto, response: Response) {
+  async login(dto: AuthDto, response: Response) {
     // Find the user by email
     const user = await this.prismaService.user.findUnique({
       where: {

@@ -14,7 +14,7 @@ import { Request, Response } from 'express'
 import { CurrentUser, CurrentUserId, Public } from '../common/decorators'
 import { RefreshTokenGuard } from '../common/guards'
 import { AuthService } from './auth.service'
-import { AuthDto } from './dto'
+import { AuthDto, RegisterDto } from './dto'
 
 @Controller('auth')
 export class AuthController {
@@ -24,10 +24,10 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   register(
-    @Body() dto: AuthDto,
+    @Body() dto: RegisterDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.login(dto, response)
+    return this.authService.register(dto, response)
   }
 
   @Public()
@@ -38,7 +38,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.register(dto, response)
+    return this.authService.login(dto, response)
   }
 
   @Post('logout')
