@@ -1,7 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 
-import { FullPageSpinner } from 'components'
+import { SpinnerFullPage } from 'components/spinner'
 
 const authClient = axios.create({
   baseURL: 'http://localhost:3333/auth',
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Interesting, when I assign it to a variable, there is a flash of Unauthenticated
   // App 🤔
   if (accessToken === undefined) {
-    return <FullPageSpinner />
+    return <SpinnerFullPage />
   }
 
   async function login(email: string, password: string) {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { useApiAxios } from 'api/api.instance'
-import { FullPageSpinner } from 'components'
+import { SpinnerFullPage } from 'components/spinner'
 
 interface User {
   id: string
@@ -32,7 +32,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [axios])
 
   if (!user) {
-    return <FullPageSpinner />
+    return <SpinnerFullPage />
   }
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>
