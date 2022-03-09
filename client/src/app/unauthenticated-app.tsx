@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { Button, Container } from '@mui/material'
+import { Button, ButtonGroup, Container } from '@mui/material'
 
 import { Navbar } from 'components/navbar'
 import { HomePage } from 'pages/home.page'
@@ -12,8 +12,10 @@ export function UnauthenticatedApp() {
     <>
       <Navbar>
         <Button href="/">Home</Button>
-        <Button href="/login">Login</Button>
-        <Button href="/register">Register</Button>
+        <ButtonGroup variant="outlined" aria-label="Login/Register">
+          <Button href="/login">Login</Button>
+          <Button href="/register">Register</Button>
+        </ButtonGroup>
       </Navbar>
       <Container component="main" maxWidth="xs">
         <Routes>
