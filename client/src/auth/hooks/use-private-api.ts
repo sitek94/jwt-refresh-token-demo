@@ -1,7 +1,7 @@
 import * as React from 'react'
 import axios from 'axios'
 
-import { useAuthContext } from 'auth/auth.provider'
+import { useAuthenticatedContext } from 'auth/auth.provider'
 import { useRefreshAccessToken } from 'auth/hooks/use-refresh-token'
 import { env } from 'config/env'
 
@@ -13,9 +13,13 @@ export const instance = axios.create({
   },
 })
 
+/**
+ * Hook to use the private API instance. It sets the Authorization header,
+ * and refreshes the token if needed.
+ */
 export function usePrivateApi() {
   const refreshAccessToken = useRefreshAccessToken()
-  const { accessToken } = useAuthContext()
+  const { accessToken } = useAuthenticatedContext()
 
   React.useEffect(() => {
     const requestInterceptor = instance.interceptors.request.use(

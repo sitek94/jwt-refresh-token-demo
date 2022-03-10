@@ -103,20 +103,28 @@ export function useAuthContext() {
   return context
 }
 
-export function useAuthenticatedAuthContext() {
-  const { isAuthenticated, user, logout } = useAuthContext()
-  if (!isAuthenticated || !user) {
+/**
+ * This hook should be used within `AuthenticatedApp`. It ensures, that the user is defined
+ * and authenticated. If not, it'll throw, you're doing something wrong 🙊
+ */
+export function useAuthenticatedContext() {
+  const { isAuthenticated, user, accessToken, logout } = useAuthContext()
+  if (!isAuthenticated || !user || !accessToken) {
     throw new Error('`useAuthenticatedAuthContext` must be used only when user is authenticated')
   }
 
   return {
     isAuthenticated,
     user,
+    accessToken,
     logout,
   }
 }
 
-export function useUnauthenticatedAuthContext() {
+/**
+ * This hook should be used within `UnauthenticatedApp`.
+ */
+export function useUnauthenticatedContext() {
   const { isAuthenticated, user, login } = useAuthContext()
   if (isAuthenticated || user) {
     throw new Error(
@@ -126,7 +134,6 @@ export function useUnauthenticatedAuthContext() {
 
   return {
     isAuthenticated,
-    user,
     login,
   }
 }

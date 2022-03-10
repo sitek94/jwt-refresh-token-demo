@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 import { Button, ButtonGroup, Container } from '@mui/material'
 
-import { useUnauthenticatedAuthContext } from 'auth/auth.provider'
+import { useUnauthenticatedContext } from 'auth/auth.provider'
 import { User } from 'auth/auth.types'
 import { Navbar } from 'components/navbar'
 import { HomePage } from 'pages/home.page'
@@ -10,7 +10,7 @@ import { LoginPage } from 'pages/login.page'
 import { RegisterPage } from 'pages/register.page'
 
 export function UnauthenticatedApp() {
-  const { login } = useUnauthenticatedAuthContext()
+  const { login } = useUnauthenticatedContext()
   const navigate = useNavigate()
 
   function loginUserOnClient(user: User, accessToken: string) {
