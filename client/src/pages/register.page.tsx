@@ -6,9 +6,9 @@ import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
-import { api } from 'api'
+import { authApi } from 'auth/auth.api'
+import { User } from 'auth/auth.types'
 import { RegisterForm, RegisterFormData } from 'forms/register.form'
-import { User } from 'providers/user.provider'
 
 type Props = {
   onSuccess(user: User, accessToken: string): void
@@ -16,7 +16,7 @@ type Props = {
 
 export function RegisterPage({ onSuccess }: Props) {
   function handleSubmit(formData: RegisterFormData) {
-    api.auth
+    authApi
       .register(formData)
       .then(({ data }) => {
         onSuccess(data.user, data.accessToken)

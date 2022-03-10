@@ -5,7 +5,7 @@ import { useAuthContext } from 'auth/auth.provider'
 import { useRefreshAccessToken } from 'auth/hooks/use-refresh-token'
 import { env } from 'config/env'
 
-export const apiAxios = axios.create({
+export const instance = axios.create({
   baseURL: env.apiUrl,
   headers: {
     'Content-Type': 'application/json',
@@ -13,12 +13,12 @@ export const apiAxios = axios.create({
   },
 })
 
-export function useApiAxios() {
+export function usePrivateApi() {
   const refreshAccessToken = useRefreshAccessToken()
   const { accessToken } = useAuthContext()
 
   React.useEffect(() => {
-    const requestInterceptor = apiAxios.interceptors.request.use(
+    const requestInterceptor = instance.interceptors.request.use(
       config => {
         // There is no Authorization header in the request
         if (config.headers && !config.headers['Authorization'] && accessToken) {
@@ -29,7 +29,7 @@ export function useApiAxios() {
       error => Promise.reject(error),
     )
 
-    const responseInterceptor = apiAxios.interceptors.response.use(
+    const responseInterceptor = instance.interceptors.response.use(
       response => response,
       async error => {
         const previousRequest = error?.config
@@ -37,17 +37,17 @@ export function useApiAxios() {
           previousRequest.sent = true
           const newAccessToken = await refreshAccessToken()
           previousRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
-          return apiAxios(previousRequest)
+          return instance(previousRequest)
         }
         return Promise.reject(error)
       },
     )
 
     return () => {
-      apiAxios.interceptors.request.eject(requestInterceptor)
-      apiAxios.interceptors.response.eject(responseInterceptor)
+      instance.interceptors.request.eject(requestInterceptor)
+      instance.interceptors.response.eject(responseInterceptor)
     }
   }, [accessToken, refreshAccessToken])
 
-  return apiAxios
+  return instance
 }

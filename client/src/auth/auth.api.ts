@@ -1,20 +1,27 @@
 import axios, { AxiosRequestConfig } from 'axios'
 
 import { AuthResponse, LoginDto, RegisterDto } from 'auth/auth.types'
+import { env } from 'config/env'
 
 export const instance = axios.create({
-  baseURL: 'http://localhost:3333/auth/',
+  baseURL: `${env.apiUrl}/auth`,
   withCredentials: true,
 })
 
-export function login(dto: LoginDto) {
+export const authApi = {
+  login,
+  refresh,
+  register,
+}
+
+function login(dto: LoginDto) {
   return instance.post<AuthResponse>('login', dto)
 }
 
-export function register(dto: RegisterDto) {
+function register(dto: RegisterDto) {
   return instance.post<AuthResponse>('register', dto)
 }
 
-export function refresh(config?: AxiosRequestConfig) {
+function refresh(config?: AxiosRequestConfig) {
   return instance.get<AuthResponse>('refresh', config)
 }

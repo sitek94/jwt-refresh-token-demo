@@ -1,17 +1,10 @@
-import { useAuth } from 'auth/auth.provider'
+import { useAuthContext } from 'auth/auth.provider'
 
 import { AuthenticatedApp } from './authenticated-app'
-import { AuthenticatedAppProviders } from './authenticated-app-providers'
 import { UnauthenticatedApp } from './unauthenticated-app'
 
 export function App() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuthContext()
 
-  return isAuthenticated ? (
-    <AuthenticatedAppProviders>
-      <AuthenticatedApp />
-    </AuthenticatedAppProviders>
-  ) : (
-    <UnauthenticatedApp />
-  )
+  return isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />
 }

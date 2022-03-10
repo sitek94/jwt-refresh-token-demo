@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import { api } from 'api'
+import { authApi } from 'auth/auth.api'
+import { User } from 'auth/auth.types'
 import { SpinnerFullPage } from 'components/spinner'
-import { User } from 'providers/user.provider'
 
 type AuthContextActions = { type: 'LOGIN'; user: User; accessToken: string } | { type: 'LOGOUT' }
 
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     let isMounted = true
     const controller = new AbortController()
-    api.auth
+    authApi
       .refresh({
         signal: controller.signal,
       })
@@ -95,10 +95,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={context} children={children} />
 }
 
-export function useAuth() {
+export function useAuthContext() {
   const context = React.useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within a AuthProvider')
   }
   return context
+}
+
+export function useAuthenticatedAuthContext() {
+  const { isAuthenticated, user, logout } = useAuthContext()
+  if (!isAuthenticated || !user) {
+    throw new Error('`useAuthenticatedAuthContext` must be used only when user is authenticated')
+  }
+
+  return {
+    isAuthenticated,
+    user,
+    logout,
+  }
+}
+
+export function useUnauthenticatedAuthContext() {
+  const { isAuthenticated, user, login } = useAuthContext()
+  if (isAuthenticated || user) {
+    throw new Error(
+      '`useUnauthenticatedAuthContext` must be used only when user is not authenticated',
+    )
+  }
+
+  return {
+    isAuthenticated,
+    user,
+    login,
+  }
 }

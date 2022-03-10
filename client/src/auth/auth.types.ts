@@ -1,5 +1,3 @@
-import { User } from 'providers/user.provider'
-
 export interface LoginDto {
   email: string
   password: string
@@ -16,4 +14,13 @@ export interface RegisterDto {
 export interface AuthResponse {
   accessToken: string
   user: User
+}
+
+export interface User {
+  id: string
+  email: string
+  createdAt: string
+  updatedAt: string
+  firstName: string
+  lastName: string
 }
