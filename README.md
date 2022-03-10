@@ -14,3 +14,4 @@ it's going to be recognized.
 - [React Security Fundamentals](https://courses.reactsecurity.io/view/courses/react-security-fundamentals/302432-handling-auth-state/864672-check-if-the-user-is-currently-authenticated) by Ryan Chekie
 - [NestJS Demo](https://github.com/sitek94/nestjs-demo) - repo that I used as a starter for server part of this project 
 - [Create React App](https://create-react-app.dev/) - client part of the project
+- [All You Need to Know About Storing JWT in the Frontend](https://dev.to/cotter/localstorage-vs-cookies-all-you-need-to-know-about-storing-jwt-tokens-securely-in-the-front-end-15id)

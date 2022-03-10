@@ -1,17 +1,17 @@
 import { apiAxios } from 'api/api.instance'
 import { useAuth } from 'auth/auth.provider'
+import { AuthResponse } from 'auth/auth.types'
 
 export function useRefreshAccessToken() {
-  const { setAccessToken } = useAuth()
+  const { login } = useAuth()
 
   async function refreshAccessToken() {
-    const response = await apiAxios.get<{ accessToken: string }>('/refresh', {
+    const { data } = await apiAxios.get<AuthResponse>('refresh', {
       withCredentials: true,
     })
-    const newAccessToken = response.data.accessToken
-
-    setAccessToken(newAccessToken)
-    return newAccessToken
+    const { user, accessToken } = data
+    login(user, accessToken)
+    return accessToken
   }
 
   return refreshAccessToken

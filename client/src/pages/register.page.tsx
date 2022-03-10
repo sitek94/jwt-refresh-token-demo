@@ -6,11 +6,25 @@ import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
-import { useAuth } from 'auth/auth.provider'
-import { RegisterForm } from 'forms/register.form'
+import { api } from 'api'
+import { RegisterForm, RegisterFormData } from 'forms/register.form'
+import { User } from 'providers/user.provider'
 
-export function RegisterPage() {
-  const { register } = useAuth()
+type Props = {
+  onSuccess(user: User, accessToken: string): void
+}
+
+export function RegisterPage({ onSuccess }: Props) {
+  function handleSubmit(formData: RegisterFormData) {
+    api.auth
+      .register(formData)
+      .then(({ data }) => {
+        onSuccess(data.user, data.accessToken)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }
   return (
     <Box
       sx={{
@@ -34,7 +48,7 @@ export function RegisterPage() {
         Sign up
       </Typography>
       <Box sx={{ mt: 3 }}>
-        <RegisterForm onSubmit={register} />
+        <RegisterForm onSubmit={handleSubmit} />
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             <Link href="/login" variant="body2">

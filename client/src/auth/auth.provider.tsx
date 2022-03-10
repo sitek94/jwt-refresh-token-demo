@@ -1,51 +1,67 @@
 import * as React from 'react'
-import axios from 'axios'
 
-import { LoginDto, RegisterDto } from 'auth/auth.types'
+import { api } from 'api'
 import { SpinnerFullPage } from 'components/spinner'
+import { User } from 'providers/user.provider'
 
-const authClient = axios.create({
-  baseURL: 'http://localhost:3333/auth',
-  withCredentials: true,
-})
+type AuthContextActions = { type: 'LOGIN'; user: User; accessToken: string } | { type: 'LOGOUT' }
 
-type AuthContextValue = {
-  accessToken: string | null
-  isAuthenticated: boolean
-  register(dto: RegisterDto): Promise<void>
-  login(dto: LoginDto): Promise<void>
-  logout(): void
-  setAccessToken(accessToken: string): void
+type State = {
+  isAuthenticated: null | boolean
+  user: null | User
+  accessToken: null | string
 }
 
-const AuthContext = React.createContext<AuthContextValue | undefined>(undefined)
+type Context = State & {
+  login(user: User, accessToken: string): void
+  logout(): void
+}
+
+const AuthContext = React.createContext<Context | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [accessToken, setAccessToken] = React.useState<string | null>()
+  const [state, dispatch] = React.useReducer(
+    (state: State, action: AuthContextActions) => {
+      switch (action.type) {
+        case 'LOGIN': {
+          return {
+            isAuthenticated: true,
+            user: action.user,
+            accessToken: action.accessToken,
+          }
+        }
+
+        case 'LOGOUT': {
+          return { isAuthenticated: false, user: null, accessToken: null }
+        }
+
+        default:
+          return state
+      }
+    },
+    {
+      // Null, meaning not determined yet.
+      // False, meaning determined and not logged in
+      // True, meaning logged in
+      isAuthenticated: null,
+      user: null,
+      accessToken: null,
+    },
+  )
 
   React.useEffect(() => {
     let isMounted = true
     const controller = new AbortController()
-
-    checkAuthStatus()
-
-    async function checkAuthStatus() {
-      try {
-        const { data } = await authClient.get<{ accessToken: string } | false>(
-          '/check',
-          {
-            signal: controller.signal,
-          },
-        )
-        if (!data) {
-          isMounted && setAccessToken(null)
-        } else {
-          isMounted && setAccessToken(data.accessToken)
-        }
-      } catch (error) {
-        isMounted && setAccessToken(null)
-      }
-    }
+    api.auth
+      .refresh({
+        signal: controller.signal,
+      })
+      .then(({ data }) => {
+        isMounted && login(data.user, data.accessToken)
+      })
+      .catch(() => {
+        isMounted && logout()
+      })
 
     return () => {
       isMounted = false
@@ -53,61 +69,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // 🚨 It's `undefined` initially, because we don't know if the user is
-  // authenticated or not. While we're waiting for the API to respond, we show
-  // a loading indicator.
+  const login = (user: User, accessToken: string) => {
+    dispatch({ type: 'LOGIN', user, accessToken })
+  }
 
-  // Interesting, when I assign it to a variable, there is a flash of Unauthenticated
-  // App 🤔
-  if (accessToken === undefined) {
+  const logout = () => {
+    dispatch({ type: 'LOGOUT' })
+  }
+
+  // 🚨 It's `null` initially, because we don't know if the user is authenticated or not.
+  // While we're waiting for the API to respond, we show a spinner.
+  if (state.isAuthenticated === null) {
     return <SpinnerFullPage />
-  }
-
-  async function register(dto: RegisterDto) {
-    try {
-      const { data } = await authClient.post('/register', dto)
-      setAccessToken(data.accessToken)
-    } catch (error) {
-      console.error(error)
-      setAccessToken(null)
-    }
-  }
-
-  async function login(dto: LoginDto) {
-    try {
-      const { data } = await authClient.post('/login', dto)
-      setAccessToken(data.accessToken)
-    } catch (error) {
-      console.error(error)
-      setAccessToken(null)
-    }
-  }
-
-  async function logout() {
-    try {
-      await authClient.post('/logout', null, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-      setAccessToken(null)
-    } catch (error) {
-      console.error(error)
-      setAccessToken(null)
-    }
   }
 
   // There is no need to optimize this `value` with React.useMemo here, since it
   // is the top-most component in the app, so it will very rarely re-render, so
   // it's not going to cause a performance problem.
-  const context = {
-    isAuthenticated: !!accessToken,
-    accessToken,
-    register,
+  const context: Context = {
+    ...state,
     login,
     logout,
-    setAccessToken,
   }
+
   return <AuthContext.Provider value={context} children={children} />
 }
 

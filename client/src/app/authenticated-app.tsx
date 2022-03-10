@@ -1,12 +1,12 @@
 import * as React from 'react'
+import { Route, Routes } from 'react-router-dom'
 import { Button } from '@mui/material'
 
 import { useAuth } from 'auth/auth.provider'
 import { Navbar } from 'components/navbar'
-import { useUser } from 'providers/user.provider'
+import { DashboardPage } from 'pages/dashboard.page'
 
 export function AuthenticatedApp() {
-  const user = useUser()
   const { logout } = useAuth()
   return (
     <>
@@ -15,10 +15,9 @@ export function AuthenticatedApp() {
           Logout
         </Button>
       </Navbar>
-      <main>
-        <h1>Hello, {user.email}</h1>
-        <pre>{JSON.stringify(user, null, 2)}</pre>
-      </main>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+      </Routes>
     </>
   )
 }

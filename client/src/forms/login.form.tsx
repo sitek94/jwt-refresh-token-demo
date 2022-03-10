@@ -9,10 +9,12 @@ const initialState = {
   password: 'maciek',
 }
 
+export type LoginFormData = typeof initialState
+
 export function LoginForm({
   onSubmit,
 }: {
-  onSubmit(data: typeof initialState): void
+  onSubmit(data: LoginFormData): void
 }) {
   const [values, setValues] = React.useState(initialState)
 

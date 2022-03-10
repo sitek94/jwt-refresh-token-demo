@@ -13,11 +13,9 @@ const initialState = {
   lastName: 'Tesla',
 }
 
-export function RegisterForm({
-  onSubmit,
-}: {
-  onSubmit(data: typeof initialState): void
-}) {
+export type RegisterFormData = typeof initialState
+
+export function RegisterForm({ onSubmit }: { onSubmit(data: RegisterFormData): void }) {
   const [values, setValues] = React.useState(initialState)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

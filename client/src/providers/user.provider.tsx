@@ -1,9 +1,6 @@
 import * as React from 'react'
 
-import { useApiAxios } from 'api/api.instance'
-import { SpinnerFullPage } from 'components/spinner'
-
-interface User {
+export interface User {
   id: string
   email: string
   createdAt: string
@@ -14,27 +11,13 @@ interface User {
 
 const UserContext = React.createContext<User | undefined>(undefined)
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
-  const axios = useApiAxios()
-  const [user, setUser] = React.useState<User>()
-
-  React.useEffect(() => {
-    fetchUser()
-
-    async function fetchUser() {
-      try {
-        const response = await axios.get('/users/me')
-        setUser(response.data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  }, [axios])
-
-  if (!user) {
-    return <SpinnerFullPage />
-  }
-
+export function UserProvider({
+  user,
+  children,
+}: {
+  user: User
+  children: React.ReactNode
+}) {
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>
 }
 
