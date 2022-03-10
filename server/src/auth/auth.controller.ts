@@ -23,10 +23,7 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  register(
-    @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  register(@Body() dto: RegisterDto, @Res({ passthrough: true }) response: Response) {
     return this.authService.register(dto, response)
   }
 
@@ -42,17 +39,17 @@ export class AuthController {
   }
 
   @Post('logout')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   logout(
     @CurrentUserId() userId: string,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<boolean> {
+  ): Promise<void> {
     return this.authService.logout(userId, response)
   }
 
   @Public()
   @UseGuards(RefreshTokenGuard)
-  @Post('refresh')
+  @Get('refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(
     @CurrentUserId() userId: string,
@@ -60,15 +57,5 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     return this.authService.refreshTokens(userId, refreshToken, response)
-  }
-
-  @Public()
-  @Get('check')
-  @HttpCode(HttpStatus.OK)
-  check(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    return this.authService.check(request, response)
   }
 }

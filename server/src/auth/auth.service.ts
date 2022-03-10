@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as argon from 'argon2'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto, RegisterDto } from './dto'
@@ -38,8 +38,13 @@ export class AuthService {
       })
       await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
       this.appendRefreshTokenCookie(tokens.refreshToken, response)
+
+      delete user.hash
+      delete user.refreshTokenHash
+
       return {
         accessToken: tokens.accessToken,
+        user,
       }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -78,8 +83,12 @@ export class AuthService {
 
     this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
+    delete user.hash
+    delete user.refreshTokenHash
+
     return {
       accessToken: tokens.accessToken,
+      user,
     }
   }
 
@@ -102,8 +111,6 @@ export class AuthService {
     })
 
     response.clearCookie('refreshToken')
-
-    return true
   }
 
   async refreshTokens(
@@ -137,39 +144,12 @@ export class AuthService {
 
     this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
-    return {
-      accessToken: tokens.accessToken,
-    }
-  }
-
-  async check(req: Request, response: Response) {
-    const refreshToken = req.cookies['refreshToken']
-    if (!refreshToken) {
-      return false
-    }
-
-    const { sub: userId } = await this.jwtService.decode(refreshToken)
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        id: userId,
-      },
-    })
-
-    const valid = await argon.verify(user.refreshTokenHash, refreshToken)
-    if (!valid) {
-      return false
-    }
-
-    const tokens = await this.getTokens({
-      userId: user.id,
-      email: user.email,
-    })
-    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
-
-    this.appendRefreshTokenCookie(tokens.refreshToken, response)
+    delete user.hash
+    delete user.refreshTokenHash
 
     return {
       accessToken: tokens.accessToken,
+      user,
     }
   }
 
@@ -220,6 +200,7 @@ export class AuthService {
   appendRefreshTokenCookie(refreshToken: string, response: Response) {
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
+      secure: true,
       sameSite: 'strict',
       expires: new Date(new Date().getTime() + 24 * 60 * 1000),
       path: '/',
