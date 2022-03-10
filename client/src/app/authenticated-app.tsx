@@ -17,6 +17,28 @@ export function AuthenticatedApp() {
       </Navbar>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
+
+        {/* SHARED */}
+        <Route
+          // Edit my account
+          path="/profile"
+          element={<DashboardPage />}
+        />
+
+        {/* USER */}
+        <Route
+          // Something that User can do, but Admin not, I have no idea what it could be 😂
+          // It doesn't really have to be legit though, it's just for demonstration purposes.
+          path="/crazy-stuff"
+          element={<DashboardPage />}
+        />
+
+        {/* ADMIN */}
+        <Route
+          // View all registered users
+          path="/users"
+          element={<DashboardPage />}
+        />
       </Routes>
     </>
   )
