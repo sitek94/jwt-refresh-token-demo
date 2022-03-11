@@ -5,17 +5,13 @@ import TextField from '@mui/material/TextField'
 // TODO: Clear initial state, it's here only for development purposes, so
 //   that I don't have to type this all the time.
 const initialState = {
-  email: 'maciek@maciek.com',
-  password: 'maciek',
+  email: 'admin@admin.com',
+  password: 'admin',
 }
 
 export type LoginFormData = typeof initialState
 
-export function LoginForm({
-  onSubmit,
-}: {
-  onSubmit(data: LoginFormData): void
-}) {
+export function LoginForm({ onSubmit }: { onSubmit(data: LoginFormData): void }) {
   const [values, setValues] = React.useState(initialState)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

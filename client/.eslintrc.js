@@ -20,6 +20,7 @@ module.exports = {
             '^(components)(/.*|$)',
             '^(config)(/.*|$)',
             '^(forms)(/.*|$)',
+            '^(images)(/.*|$)',
             '^(pages)(/.*|$)',
             '^(providers)(/.*|$)',
             '^[^.]',
