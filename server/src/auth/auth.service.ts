@@ -5,7 +5,8 @@ import { Role } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as argon from 'argon2'
 import { Response } from 'express'
-import { ACCESS_TOKEN, REFRESH_TOKEN } from 'src/auth/auth.constants'
+
+import { ACCESS_TOKEN, REFRESH_TOKEN } from 'auth/auth.constants'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto, RegisterDto } from './dto'

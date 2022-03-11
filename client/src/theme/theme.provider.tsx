@@ -1,14 +1,8 @@
 import * as React from 'react'
-import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-} from 'react-router-dom'
+import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom'
 import { CssBaseline } from '@mui/material'
 import { LinkProps } from '@mui/material/Link'
-import {
-  createTheme,
-  ThemeProvider as MuiThemeProvider,
-} from '@mui/material/styles'
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
 
 /**
  * Based on Material UI:
