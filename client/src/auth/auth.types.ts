@@ -23,4 +23,10 @@ export interface User {
   updatedAt: string
   firstName: string
   lastName: string
+  roles: Role[]
+}
+
+export enum Role {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }

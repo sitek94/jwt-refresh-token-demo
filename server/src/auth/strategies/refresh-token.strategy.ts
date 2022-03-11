@@ -7,10 +7,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
 import { JwtPayload, JwtWithRefreshTokenPayload } from '../types'
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh',
-) {
+export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,10 +17,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   validate(req: Request, payload: JwtPayload): JwtWithRefreshTokenPayload {
-    const refreshToken = req
-      .get('Authorization')
-      ?.replace('Bearer ', '')
-      ?.trim()
+    const refreshToken = req.get('Authorization')?.replace('Bearer ', '')?.trim()
 
     if (!refreshToken) {
       throw new ForbiddenException('Wrong or missing refresh token')
