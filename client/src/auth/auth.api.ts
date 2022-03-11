@@ -14,14 +14,18 @@ export const authApi = {
   register,
 }
 
-function login(dto: LoginDto) {
+export function login(dto: LoginDto) {
   return instance.post<AuthResponse>('login', dto)
 }
 
-function register(dto: RegisterDto) {
+export function register(dto: RegisterDto) {
   return instance.post<AuthResponse>('register', dto)
 }
 
-function refreshToken(config?: AxiosRequestConfig) {
+export function refreshToken(config?: AxiosRequestConfig) {
   return instance.get<AuthResponse>('refresh', config)
+}
+
+export function getMe(config?: AxiosRequestConfig) {
+  return instance.get<AuthResponse>('me', config)
 }

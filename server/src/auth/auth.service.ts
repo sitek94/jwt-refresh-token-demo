@@ -1,9 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { Role } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as argon from 'argon2'
 import { Response } from 'express'
+import { ACCESS_TOKEN, REFRESH_TOKEN } from 'src/auth/auth.constants'
 
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthDto, RegisterDto } from './dto'
@@ -17,6 +19,9 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
+  private refreshTokenSecret = this.configService.get<string>('REFRESH_TOKEN_SECRET')
+  private accessTokenSecret = this.configService.get<string>('ACCESS_TOKEN_SECRET')
+
   async register(dto: RegisterDto, response: Response) {
     // Generate password hash
     const hash = await argon.hash(dto.password)
@@ -29,6 +34,7 @@ export class AuthService {
           firstName: dto.firstName,
           lastName: dto.lastName,
           hash,
+          roles: [Role.USER],
         },
       })
 
@@ -110,14 +116,10 @@ export class AuthService {
       },
     })
 
-    response.clearCookie('refreshToken')
+    response.clearCookie(REFRESH_TOKEN)
   }
 
-  async refreshTokens(
-    userId: string,
-    refreshToken: string,
-    response: Response,
-  ) {
+  async refreshTokens(userId: string, refreshToken: string, response: Response) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -148,18 +150,51 @@ export class AuthService {
     delete user.refreshTokenHash
 
     return {
-      accessToken: tokens.accessToken,
+      [ACCESS_TOKEN]: tokens.accessToken,
       user,
     }
   }
 
-  async getTokens({
-    userId,
-    email,
-  }: {
-    userId: string
-    email: string
-  }): Promise<JwtTokens> {
+  async getMe(response: Response, refreshToken?: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Missing refresh token')
+    }
+
+    const { sub: userId } = await this.jwtService.verifyAsync(refreshToken, {
+      secret: this.refreshTokenSecret,
+    })
+    if (!userId) {
+      throw new UnauthorizedException('Invalid refresh token')
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+    const valid = await argon.verify(user.refreshTokenHash, refreshToken)
+    if (!valid) {
+      throw new UnauthorizedException('Invalid refresh token')
+    }
+
+    const tokens = await this.getTokens({
+      userId: user.id,
+      email: user.email,
+    })
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
+
+    this.appendRefreshTokenCookie(tokens.refreshToken, response)
+
+    delete user.hash
+    delete user.refreshTokenHash
+
+    return {
+      [ACCESS_TOKEN]: tokens.accessToken,
+      user,
+    }
+  }
+
+  async getTokens({ userId, email }: { userId: string; email: string }): Promise<JwtTokens> {
     const jwtPayload: JwtPayload = {
       sub: userId,
       email,
@@ -167,11 +202,11 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         expiresIn: '15min',
-        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+        secret: this.accessTokenSecret,
       }),
       this.jwtService.signAsync(jwtPayload, {
         expiresIn: '7d',
-        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+        secret: this.refreshTokenSecret,
       }),
     ])
 
@@ -181,10 +216,7 @@ export class AuthService {
     }
   }
 
-  async updateRefreshTokenHash(
-    userId: string,
-    refreshToken: string,
-  ): Promise<void> {
+  async updateRefreshTokenHash(userId: string, refreshToken: string): Promise<void> {
     const hash = await argon.hash(refreshToken)
 
     await this.prismaService.user.update({
@@ -198,7 +230,7 @@ export class AuthService {
   }
 
   appendRefreshTokenCookie(refreshToken: string, response: Response) {
-    response.cookie('refreshToken', refreshToken, {
+    response.cookie(REFRESH_TOKEN, refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',

@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { authApi } from 'auth/auth.api'
+import * as authApi from 'auth/auth.api'
 import { User } from 'auth/auth.types'
 import { SpinnerFullPage } from 'components/spinner'
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let isMounted = true
     const controller = new AbortController()
     authApi
-      .refreshToken({
+      .getMe({
         signal: controller.signal,
       })
       .then(({ data }) => {

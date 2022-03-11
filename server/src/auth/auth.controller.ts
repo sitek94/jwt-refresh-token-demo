@@ -10,9 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
+import { REFRESH_TOKEN } from 'src/auth/auth.constants'
+import { Cookies } from 'src/common/decorators/cookies.decorator'
+import { RefreshTokenGuard } from 'src/common/guards'
 
 import { CurrentUser, CurrentUserId, Public } from '../common/decorators'
-import { RefreshTokenGuard } from '../common/guards'
 import { AuthService } from './auth.service'
 import { AuthDto, RegisterDto } from './dto'
 
@@ -53,9 +55,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   refreshTokens(
     @CurrentUserId() userId: string,
-    @CurrentUser('refreshToken') refreshToken: string,
+    @CurrentUser(REFRESH_TOKEN) refreshToken: string,
     @Res({ passthrough: true }) response: Response,
   ) {
     return this.authService.refreshTokens(userId, refreshToken, response)
+  }
+
+  @Public()
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  getMe(
+    @Res({ passthrough: true }) response: Response,
+    @Cookies(REFRESH_TOKEN) refreshToken?: string,
+  ) {
+    return this.authService.getMe(response, refreshToken)
   }
 }
