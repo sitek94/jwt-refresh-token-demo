@@ -10,7 +10,7 @@ export const instance = axios.create({
 
 export const authApi = {
   login,
-  refresh,
+  refreshToken,
   register,
 }
 
@@ -22,6 +22,6 @@ function register(dto: RegisterDto) {
   return instance.post<AuthResponse>('register', dto)
 }
 
-function refresh(config?: AxiosRequestConfig) {
+function refreshToken(config?: AxiosRequestConfig) {
   return instance.get<AuthResponse>('refresh', config)
 }

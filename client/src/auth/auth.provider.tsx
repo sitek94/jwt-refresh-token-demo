@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let isMounted = true
     const controller = new AbortController()
     authApi
-      .refresh({
+      .refreshToken({
         signal: controller.signal,
       })
       .then(({ data }) => {
