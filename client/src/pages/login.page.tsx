@@ -19,6 +19,7 @@ export function LoginPage({ onSuccess }: Props) {
     authApi
       .login(formData)
       .then(({ data }) => {
+        console.log(data)
         onSuccess(data.user, data.accessToken)
       })
       .catch(error => {

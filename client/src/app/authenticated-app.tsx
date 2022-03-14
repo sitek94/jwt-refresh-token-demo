@@ -1,51 +1,71 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { Container } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
 import { Role } from 'auth/auth.types'
 import { RequireRoles } from 'auth/require-roles.guard'
-import { AccountMenu } from 'components/authenticated-dropdown-menu'
-import { Navbar } from 'components/navbar'
+import { AppLayout } from 'components/app-layout'
 import { AdminUsersPage } from 'pages/admin/users.page'
 import { DashboardPage } from 'pages/dashboard.page'
 import { UnauthorizedPage } from 'pages/unauthorized.page'
 
 export function AuthenticatedApp() {
   return (
-    <>
-      <Navbar>
-        <AccountMenu />
-      </Navbar>
-      <Routes>
-        <Route path="/">
-          {/*<Route path="/" element={<DashboardPage />} />*/}
+    <Routes>
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<DashboardPage />} />
 
-          {/* SHARED */}
-          <Route
-            // Edit my account
-            path="/profile"
-            element={<DashboardPage />}
-          />
+        {/* SHARED */}
+        <Route
+          // Edit my account
+          path="profile"
+          element={<ProfilePage />}
+        />
 
-          {/* USER */}
+        {/* USER */}
+        <Route element={<RequireRoles roles={[Role.USER]} />}>
           <Route
             // Something that User can do, but Admin not, I have no idea what it could be 😂
             // It doesn't really have to be legit though, it's just for demonstration purposes.
-            path="/crazy-stuff"
-            element={<DashboardPage />}
+            path="crazy-stuff"
+            element={<CrazyStuffPage />}
           />
-
-          {/* ADMIN */}
-          <Route element={<RequireRoles roles={[Role.ADMIN]} />}>
-            <Route
-              // View all registered users
-              path="admin"
-              element={<AdminUsersPage />}
-            />
-          </Route>
-
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
         </Route>
-      </Routes>
-    </>
+
+        {/* ADMIN */}
+        <Route path="admin" element={<RequireRoles roles={[Role.ADMIN]} />}>
+          <Route path="users" element={<AdminUsersPage />} />
+        </Route>
+
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
+      </Route>
+    </Routes>
+  )
+}
+
+function ProfilePage() {
+  return (
+    <Container maxWidth="md">
+      <Typography variant="h2" component="h1">
+        Profile
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Everyone can see this page.
+      </Typography>
+    </Container>
+  )
+}
+
+export function CrazyStuffPage() {
+  return (
+    <Container maxWidth="md">
+      <Typography variant="h2" component="h1">
+        Crazy Stuff
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Everyone can see this page.
+      </Typography>
+    </Container>
   )
 }

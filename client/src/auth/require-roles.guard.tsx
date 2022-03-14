@@ -10,7 +10,7 @@ type Props = {
 
 export function RequireRoles({ roles }: Props) {
   const { user } = useAuthenticatedContext()
-  if (user.roles.find(role => roles.includes(role))) {
+  if (!user.roles.find(role => roles.includes(role))) {
     return <Navigate to="/unauthorized" />
   }
 

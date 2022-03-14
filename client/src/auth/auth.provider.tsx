@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import * as authApi from 'auth/auth.api'
-import { User } from 'auth/auth.types'
+import { Role, User } from 'auth/auth.types'
 import { SpinnerFullPage } from 'components/spinner'
 
 type AuthContextActions = { type: 'LOGIN'; user: User; accessToken: string } | { type: 'LOGOUT' }
@@ -118,6 +118,7 @@ export function useAuthenticatedContext() {
     user,
     accessToken,
     logout,
+    isAdmin: user.roles.includes(Role.ADMIN),
   }
 }
 
