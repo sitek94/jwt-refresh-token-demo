@@ -1,23 +1,19 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { Button } from '@mui/material'
 
-import { useAuthenticatedContext } from 'auth/auth.provider'
 import { Role } from 'auth/auth.types'
-import { RequireRoles } from 'auth/components/require-roles'
+import { RequireRoles } from 'auth/require-roles.guard'
+import { AccountMenu } from 'components/authenticated-dropdown-menu'
 import { Navbar } from 'components/navbar'
 import { AdminUsersPage } from 'pages/admin/users.page'
 import { DashboardPage } from 'pages/dashboard.page'
 import { UnauthorizedPage } from 'pages/unauthorized.page'
 
 export function AuthenticatedApp() {
-  const { logout } = useAuthenticatedContext()
   return (
     <>
       <Navbar>
-        <Button onClick={logout} variant="outlined">
-          Logout
-        </Button>
+        <AccountMenu />
       </Navbar>
       <Routes>
         <Route path="/">
