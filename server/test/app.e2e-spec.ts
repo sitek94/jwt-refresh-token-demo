@@ -142,6 +142,32 @@ describe('App E2E', () => {
           .stores('userAccessToken', 'accessToken')
       })
     })
+
+    describe('Sign out', () => {
+      it('should throw if no access token provided', () => {
+        return pactum.spec().post('/auth/logout').expectStatus(401)
+      })
+
+      it('should sign out', () => {
+        return pactum
+          .spec()
+          .post('/auth/logout')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAccessToken}',
+          })
+          .expectStatus(204)
+          .stores('userAccessToken', '')
+      })
+
+      it('should sign in after logging out', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody(dto)
+          .expectStatus(200)
+          .stores('userAccessToken', 'accessToken')
+      })
+    })
   })
 
   describe('Users', () => {
@@ -156,6 +182,7 @@ describe('App E2E', () => {
           .expectStatus(200)
       })
     })
+
     describe('Edit user', () => {
       it('should edit current user', () => {
         const dto: EditUserDto = {
