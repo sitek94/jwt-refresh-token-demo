@@ -17,7 +17,7 @@ export const instance = axios.create({
  * Hook to use the private API instance. It sets the Authorization header,
  * and refreshes the token if needed.
  */
-export function usePrivateApi() {
+export function usePrivateAxios() {
   const refreshAccessToken = useRefreshAccessToken()
   const { accessToken } = useAuthenticatedContext()
 

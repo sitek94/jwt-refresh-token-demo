@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import { Role } from 'auth/auth.types'
 import { RequireRoles } from 'auth/require-roles.guard'
 import { AppLayout } from 'components/app-layout'
-import { AdminUsersPage } from 'pages/admin/users.page'
+import { ManageUsersPage } from 'pages/admin/manage-users.page'
 import { DashboardPage } from 'pages/dashboard.page'
 import { UnauthorizedPage } from 'pages/unauthorized.page'
 
@@ -35,7 +35,7 @@ export function AuthenticatedApp() {
 
         {/* ADMIN */}
         <Route path="admin" element={<RequireRoles roles={[Role.ADMIN]} />}>
-          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="users" element={<ManageUsersPage />} />
         </Route>
 
         <Route path="unauthorized" element={<UnauthorizedPage />} />
