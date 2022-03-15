@@ -1,13 +1,13 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { Role } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as argon from 'argon2'
 import { Response } from 'express'
 
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../auth/auth.constants'
-import { PrismaService } from '../prisma/prisma.service'
+import { ACCESS_TOKEN, REFRESH_TOKEN } from 'src/auth/auth.constants'
+import { PrismaService } from 'src/prisma/prisma.service'
+import { UsersService } from 'src/users/users.service'
+
 import { AuthDto, RegisterDto } from './dto'
 import { JwtPayload, JwtTokens } from './types'
 
@@ -17,48 +17,26 @@ export class AuthService {
     private prismaService: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private usersService: UsersService,
   ) {}
 
   private refreshTokenSecret = this.configService.get<string>('REFRESH_TOKEN_SECRET')
   private accessTokenSecret = this.configService.get<string>('ACCESS_TOKEN_SECRET')
 
   async register(dto: RegisterDto, response: Response) {
-    // Generate password hash
-    const hash = await argon.hash(dto.password)
+    const user = await this.usersService.createUser(dto)
 
-    try {
-      // Save new user in the db
-      const user = await this.prismaService.user.create({
-        data: {
-          email: dto.email,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          hash,
-          roles: [Role.USER],
-        },
-      })
+    const tokens = await this.getTokens({
+      userId: user.id,
+      email: user.email,
+    })
 
-      const tokens = await this.getTokens({
-        userId: user.id,
-        email: user.email,
-      })
-      await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
-      this.appendRefreshTokenCookie(tokens.refreshToken, response)
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken)
+    this.appendRefreshTokenCookie(tokens.refreshToken, response)
 
-      delete user.hash
-      delete user.refreshTokenHash
-
-      return {
-        accessToken: tokens.accessToken,
-        user,
-      }
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('The email is already taken')
-        }
-        throw error
-      }
+    return {
+      accessToken: tokens.accessToken,
+      user,
     }
   }
 

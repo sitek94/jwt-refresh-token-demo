@@ -11,9 +11,12 @@ import {
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 
-import { CurrentUser, CurrentUserId, Public } from '../common/decorators'
-import { Cookies } from '../common/decorators/cookies.decorator'
-import { RefreshTokenGuard } from '../common/guards'
+import { Cookies } from 'src/common/decorators/cookies.decorator'
+import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CurrentUserId } from 'src/common/decorators/current-user-id.decorator'
+import { Public } from 'src/common/decorators/public.decorator'
+import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard'
+
 import { REFRESH_TOKEN } from './auth.constants'
 import { AuthService } from './auth.service'
 import { AuthDto, RegisterDto } from './dto'

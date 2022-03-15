@@ -28,14 +28,19 @@ module.exports = {
           // Internal packages.
           // Absolute imports and other imports such as `@/foo`.
           // Anything that does not start with a dot.
-          ['^(auth)(/.*|$)', '^[^.]'],
-          ['^(common)(/.*|$)', '^[^.]'],
-          ['^(prisma)(/.*|$)', '^[^.]'],
-          ['^(users)(/.*|$)', '^[^.]'],
-          ['^(utils)(/.*|$)', '^[^.]'],
-          // Relative imports.
-          // Anything that starts with a dot.
-          ['^\\.'],
+          [
+            '^(src/auth)(/.*|$)',
+            '^(src/common)(/.*|$)',
+            '^(src/prisma)(/.*|$)',
+            '^(src/users)(/.*|$)',
+            '^(src/utils)(/.*|$)',
+            '^[^.]',
+          ],
+          [
+            // Relative imports.
+            // Anything that starts with a dot.
+            '^\\.',
+          ],
         ],
       },
     ],

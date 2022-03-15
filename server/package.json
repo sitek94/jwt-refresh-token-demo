@@ -26,7 +26,10 @@
     "test:e2e:watch": "npm run test:e2e -- --watch --no-cache",
     "test:prisma:deploy": "dotenv -e .env.test -- prisma migrate deploy",
     "test:prisma:studio": "dotenv -e .env.test --prisma studio",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+
+    "pretest:int": "npm run test:db:restart",
+    "test:int": "dotenv -e .env.test -- jest -i --no-cache --watch --config jest-int.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
