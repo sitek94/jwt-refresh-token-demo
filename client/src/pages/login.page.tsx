@@ -30,6 +30,8 @@ export function LoginPage({ onSuccess }: Props) {
   return (
     <Box
       sx={{
+        maxWidth: 400,
+        mx: 'auto',
         marginTop: 8,
         display: 'flex',
         flexDirection: 'column',
