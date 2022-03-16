@@ -5,15 +5,15 @@ import Typography from '@mui/material/Typography'
 
 import { Role } from 'auth/auth.types'
 import { RequireRoles } from 'auth/require-roles.guard'
-import { AppLayout } from 'components/app-layout'
-import { ManageUsersPage } from 'pages/admin/manage-users.page'
+import { AuthenticatedAppLayout } from 'components/authenticated-app-layout'
 import { DashboardPage } from 'pages/dashboard.page'
+import { ManageUsersPage } from 'pages/manage-users.page'
 import { UnauthorizedPage } from 'pages/unauthorized.page'
 
 export function AuthenticatedApp() {
   return (
     <Routes>
-      <Route path="/" element={<AppLayout />}>
+      <Route path="/" element={<AuthenticatedAppLayout />}>
         <Route index element={<DashboardPage />} />
 
         {/* SHARED */}

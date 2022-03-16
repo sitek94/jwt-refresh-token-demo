@@ -16,10 +16,11 @@ import Typography from '@mui/material/Typography'
 
 import { useAuthenticatedContext } from 'auth/auth.provider'
 import { AccountMenu } from 'components/authenticated-dropdown-menu'
+import { app } from 'config/app'
 
 const drawerWidth = 240
 
-export function AppLayout() {
+export function AuthenticatedAppLayout() {
   const { isAdmin } = useAuthenticatedContext()
 
   return (
@@ -27,7 +28,7 @@ export function AppLayout() {
       <AppBar position="fixed" sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            JSON Web Tokens Demo
+            {app.name}
           </Typography>
           <nav>
             <AccountMenu />
