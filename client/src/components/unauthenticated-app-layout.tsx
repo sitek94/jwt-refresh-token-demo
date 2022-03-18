@@ -38,7 +38,8 @@ export function UnauthenticatedAppLayout() {
           </Typography>
 
           <Tabs
-            value={currentTab}
+            // `Tabs` expects false when there should be no tab selected
+            value={currentTab || false}
             sx={{
               height: '100%',
               flexGrow: 1,
