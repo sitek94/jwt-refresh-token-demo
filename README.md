@@ -7,6 +7,27 @@ Avoid using Cookies or Local Storage for storing JWT tokens, by:
 HttpOnly Cookie, cannot be accessed by JavaScript, but it can be sent back to the server, where
 it's going to be recognized.
 
+## Getting started
+
+1. Clone the repo
+   ```bash
+   git clone https://github.com/sitek94/jwt-refresh-token-demo.git
+   ```
+2. Install all dependencies
+   ```bash
+   npm run install-deps
+   ```
+3. Make sure you have a [Docker](https://docs.docker.com/) running 
+4. Start the client
+   ```bash
+   npm run dev:client
+   ```
+5. Start the server
+   ```bash
+   npm run dev:server
+   ```
+6. Open the browser and navigate to http://localhost:3000
+
 ## Resources 
 - [NestJs JWT - Access Tokens & Refresh Tokens](https://youtu.be/uAKzFhE3rxU) by
   Vlad Agaev
