@@ -15,8 +15,8 @@ export function UnauthenticatedApp() {
   const navigate = useNavigate()
 
   function loginUserOnClient(user: User, accessToken: string) {
+    navigate('/', { replace: true })
     login(user, accessToken)
-    navigate('/')
   }
 
   return (
