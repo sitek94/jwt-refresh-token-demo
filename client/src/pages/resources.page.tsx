@@ -71,7 +71,7 @@ export function ResourcesPage() {
         </Typography>
         <Box component="ul" sx={{ paddingLeft: 2 }}>
           {resources.map(({ url, title, description }) => (
-            <li>
+            <li key={title}>
               <Link href={url}>{title}</Link> <span>{description}</span>
             </li>
           ))}
